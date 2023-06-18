@@ -1,0 +1,7 @@
+package xhttp
+
+const (
+	ERROR_CODE_SERVER_INTERNAL_ERR         int32 = 500
+	ERROR_CODE_HTTP_REQ_DESERIALIZE_FAILED int32 = 601
+	ERROR_CODE_HTTP_REQ_PARAM_ERR          int32 = 602
+)
