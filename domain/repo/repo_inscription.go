@@ -8,7 +8,7 @@ import (
 
 type InscriptionRepository interface {
 	Insert(inscription *po.Inscription) (err error)
-	List(w *entity.MysqlWhere) (list []*po.Inscription, err error)
+	List(w *entity.MysqlWhere) (list []po.Inscription, err error)
 	CheckInscription(w *entity.MysqlWhere) (inscription *po.Inscription, err error)
 }
 
@@ -32,12 +32,13 @@ func (r *inscriptionRepository) CheckInscription(w *entity.MysqlWhere) (inscript
 	return
 }
 
-func (r *inscriptionRepository) List(w *entity.MysqlWhere) (list []*po.Inscription, err error) {
-	list = make([]*po.Inscription, 0)
+func (r *inscriptionRepository) List(w *entity.MysqlWhere) (list []po.Inscription, err error) {
+	list = make([]po.Inscription, 0)
 	db := xmysql.GetDB()
 	err = db.Model(po.Inscription{}).
 		Select("id,inscription,inscription_id").
 		Where(w.Query, w.Args...).
+		Offset(w.Offset).
 		Limit(w.Limit).
 		Find(&list).Error
 	return

@@ -6,14 +6,14 @@ import (
 	"rcsv/pkg/constant"
 )
 
-func (im *InscriptionMonitor) Content(id string) (string, error) {
+func (im *InscriptionMonitor) Content(id string) ([]byte, error) {
 	client := resty.New()
 	resp, err := client.R().
 		SetHeader("Accept", "image/svg+xml").
 		Get(fmt.Sprintf(constant.INSCRIPTION_INFO, id))
 	if err != nil {
 		log.Errorf("err : %v", err)
-		return "", err
+		return []byte{}, err
 	}
-	return string(resp.Body()), nil
+	return resp.Body(), nil
 }

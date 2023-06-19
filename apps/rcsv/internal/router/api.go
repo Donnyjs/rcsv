@@ -11,7 +11,7 @@ import (
 var log = logger.Logger("router")
 
 func Register(engine *gin.Engine) {
-	publicGroup := engine.Group("api")
+	publicGroup := engine.Group("api/v1")
 	registerPublicRoutes(publicGroup)
 }
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	logger "github.com/ipfs/go-log"
 	"rcsv/apps/rcsv/internal/config"
 	"rcsv/apps/rcsv/internal/server"
 	"rcsv/pkg/commands"
@@ -15,5 +16,6 @@ func init() {
 }
 
 func main() {
+	logger.SetLogLevel("*", "INFO")
 	commands.Run(server.NewServer())
 }

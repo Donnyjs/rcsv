@@ -15,7 +15,7 @@ func NewGinServer() *GinServer {
 	var (
 		engine *gin.Engine
 	)
-	gin.SetMode(gin.ReleaseMode)
+	gin.SetMode(gin.DebugMode)
 	engine = gin.New()
 
 	engine.Use(gin.Recovery(), gin.Logger())

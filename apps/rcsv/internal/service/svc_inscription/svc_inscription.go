@@ -7,7 +7,7 @@ import (
 )
 
 type InscriptionService interface {
-	List() (resp *xhttp.Resp)
+	List(tp string, page, limit int) (resp *xhttp.Resp)
 }
 
 type inscriptionService struct {

@@ -22,20 +22,31 @@ type Image struct {
 	Href    string   `xml:"href,attr"`
 }
 
-func ContainDataClctUtil(body []byte) (bool, []string, error) {
+func ContainDataClctUtil(body []byte) (bool, string, error) {
 	var i InscriptionSvg
 	if err := xml.Unmarshal(body, &i); err != nil {
-		log.Error(err)
-		return false, []string{}, err
+		return false, "", err
 	}
 
-	if i.DataClct == constant.DATA_CLCT || i.DataClct == constant.RCSVIO {
+	if i.DataClct == constant.DATA_CLCT {
 		log.Info("InscriptionInfo contains data-clct attribute with value 'doodinals'")
 		images := make([]string, 0)
 		for index := range i.Image {
 			images = append(images, i.Image[index].Href)
 		}
-		return true, images, nil
+		_ = images
+		return true, constant.DATA_CLCT, nil
 	}
-	return false, []string{}, errors.New("InscriptionInfo not contains data-clct")
+
+	if i.DataClct == constant.DATA_RCSV_IO {
+		images := make([]string, 0)
+		for index := range i.Image {
+			images = append(images, i.Image[index].Href)
+		}
+		_ = images
+		log.Info("InscriptionInfo contains data-clct attribute with value 'rcsv.io'")
+		return true, constant.DATA_RCSV_IO, nil
+	}
+
+	return false, "", errors.New("InscriptionInfo not contains data-clct")
 }
