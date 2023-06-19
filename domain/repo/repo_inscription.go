@@ -7,7 +7,7 @@ import (
 )
 
 type InscriptionRepository interface {
-	Insert(user *po.Inscription) (err error)
+	Insert(inscription *po.Inscription) (err error)
 	List(w *entity.MysqlWhere) (list []*po.Inscription, err error)
 	CheckInscription(w *entity.MysqlWhere) (inscription *po.Inscription, err error)
 }

@@ -18,7 +18,7 @@ func NewGinServer() *GinServer {
 	gin.SetMode(gin.ReleaseMode)
 	engine = gin.New()
 
-	engine.Use(gin.Recovery())
+	engine.Use(gin.Recovery(), gin.Logger())
 
 	engine.Use(middleware.Cors())
 	return &GinServer{engine}

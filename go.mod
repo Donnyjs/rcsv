@@ -7,6 +7,7 @@ require (
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-redis/redis/v9 v9.0.0-beta.2
 	github.com/go-redsync/redsync/v4 v4.6.0
+	github.com/go-resty/resty/v2 v2.7.0
 	github.com/ipfs/go-log v1.0.5
 	github.com/json-iterator/go v1.1.12
 	github.com/satori/go.uuid v1.2.0
