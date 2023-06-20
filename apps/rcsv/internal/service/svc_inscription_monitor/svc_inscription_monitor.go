@@ -45,13 +45,12 @@ func (im *InscriptionMonitor) Run() {
 					continue
 				}
 				updateFlag = true
-
 				content, err := im.Content(v.Id)
 				if err != nil {
 					log.Errorf("query content err: %v, id: %s", err, v.Id)
 					continue
 				}
-				flag, tp, _ := utils.ContainDataClctUtil(content)
+				flag, tp, list, _ := utils.ContainDataClctUtil(content)
 				if !flag {
 					continue
 				}
@@ -60,15 +59,19 @@ func (im *InscriptionMonitor) Run() {
 				inscription.Inscription = v.Number
 				inscription.InscriptionId = v.Id
 				inscription.DataType = tp
+				inscription.ContentLength = v.ContentLength
+				inscription.GenesisTimestamp = v.GenesisTimestamp
+				inscription.GenesisBlockHeight = v.GenesisBlockHeight
+				inscription.RecursiveNum = int64(len(list))
 				err = im.Repo.Insert(&inscription)
 				if err != nil {
 					log.Errorf("insert err: %v, id: %s, number: %d", err, v.Id, v.Number)
 					continue
 				}
 				im.Cache.SetCurrentInscriptionNumber(int(v.Number))
-				if updateFlag {
-					im.Cache.DeleteInscriptionList()
-				}
+			}
+			if updateFlag {
+				im.Cache.DeleteInscriptionList()
 			}
 		}
 	}

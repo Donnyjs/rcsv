@@ -22,31 +22,31 @@ type Image struct {
 	Href    string   `xml:"href,attr"`
 }
 
-func ContainDataClctUtil(body []byte) (bool, string, error) {
-	var i InscriptionSvg
+func ContainDataClctUtil(body []byte) (bool, string, []string, error) {
+	var (
+		i  InscriptionSvg
+		tp string
+	)
 	if err := xml.Unmarshal(body, &i); err != nil {
-		return false, "", err
+		log.Errorf("err: %v", err)
+		return false, "", []string{}, err
 	}
 
 	if i.DataClct == constant.DATA_CLCT {
 		log.Info("InscriptionInfo contains data-clct attribute with value 'doodinals'")
-		images := make([]string, 0)
-		for index := range i.Image {
-			images = append(images, i.Image[index].Href)
-		}
-		_ = images
-		return true, constant.DATA_CLCT, nil
+		tp = constant.DATA_CLCT
 	}
 
 	if i.DataClct == constant.DATA_RCSV_IO {
-		images := make([]string, 0)
-		for index := range i.Image {
-			images = append(images, i.Image[index].Href)
-		}
-		_ = images
 		log.Info("InscriptionInfo contains data-clct attribute with value 'rcsv.io'")
-		return true, constant.DATA_RCSV_IO, nil
+		tp = constant.DATA_RCSV_IO
 	}
-
-	return false, "", errors.New("InscriptionInfo not contains data-clct")
+	if tp == "" {
+		return false, "", []string{}, errors.New("InscriptionInfo not contains data-clct")
+	}
+	images := make([]string, 0)
+	for index := range i.Image {
+		images = append(images, i.Image[index].Href)
+	}
+	return true, tp, images, nil
 }

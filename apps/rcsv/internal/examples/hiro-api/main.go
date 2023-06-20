@@ -6,11 +6,11 @@ import (
 	"rcsv/apps/rcsv/internal/config"
 	"rcsv/apps/rcsv/internal/service/svc_inscription_monitor"
 	"rcsv/domain/cache"
-	"rcsv/domain/po"
 	"rcsv/domain/repo"
 	"rcsv/pkg/common/xmysql"
 	"rcsv/pkg/common/xredis"
 	"rcsv/pkg/constant"
+	"rcsv/pkg/entity"
 	"rcsv/pkg/utils"
 	"sync"
 	"time"
@@ -27,8 +27,8 @@ func init() {
 func main() {
 	logger.SetAllLoggers(logger.LevelInfo)
 	//QueryInscriptionList()
-	//QueryInscriptionContent()
-	InitData()
+	QueryInscriptionContent()
+	//InitData()
 }
 
 func QueryInscriptionList() {
@@ -44,7 +44,9 @@ func QueryInscriptionContent() {
 	repo := repo.NewInscriptionRepository()
 	cache := cache.NewInscriptionCache()
 	monitor := svc_inscription_monitor.NewInscriptionMonitor(cache, repo)
-	fmt.Println(monitor.Content("cdc1064c94785cd6617f5955f75a7939830ccec865fe85c0c91045efa6df5978i0"))
+	content, _ := monitor.Content("6622fe6d83afec464193f6ab7155c74d5640e23d076a04d1e983e7581b112b81i0")
+	fmt.Println(string(content))
+	utils.ContainDataClctUtil(content)
 }
 
 func InitData() {
@@ -66,12 +68,13 @@ func InitData() {
 				log.Errorf("fetchList err: %v, offset: %d", err, offset)
 				continue
 			}
-			if resp.Total <= limit+offset {
+			if resp.Total <= limit+offset && offset != 0 {
 				log.Infof("init data done")
 				return
 			}
 			throttle := make(chan struct{}, 5)
 			var wg sync.WaitGroup
+			log.Infof("1111")
 			for _, data := range resp.Results {
 				wg.Add(1)
 				throttle <- struct{}{}
@@ -85,21 +88,24 @@ func InitData() {
 						log.Errorf("query content err: %v, id: %s", err, v.Id)
 						return
 					}
-					flag, tp, _ := utils.ContainDataClctUtil(content)
+					log.Infof("1111")
+					flag, tp, list, _ := utils.ContainDataClctUtil(content)
 					if !flag {
 						return
 					}
-					var inscription po.Inscription
-					inscription.Id = utils.NewUUID()
-					inscription.Inscription = v.Number
-					inscription.InscriptionId = v.Id
-					inscription.DataType = tp
-					err = repo.Insert(&inscription)
+					_ = tp
+					u := entity.NewMysqlUpdate()
+					u.SetFilter("inscription=?", v.Number)
+					u.Set("recursive_num", int64(len(list)))
+					u.Set("genesis_timestamp", v.GenesisTimestamp)
+					u.Set("genesis_block_height", v.GenesisBlockHeight)
+					u.Set("content_length", v.ContentLength)
+					err = repo.Update(u)
 					if err != nil {
-						log.Errorf("insert err: %v, id: %s, number: %d", err, v.Id, v.Number)
+						log.Errorf("update err: %v, id: %s, number: %d", err, v.Id, v.Number)
 						return
 					}
-					cache.SetCurrentInscriptionNumber(int(v.Number))
+					//cache.SetCurrentInscriptionNumber(int(v.Number))
 				}(data)
 			}
 			wg.Wait()

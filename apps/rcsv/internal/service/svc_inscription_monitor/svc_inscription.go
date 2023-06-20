@@ -11,5 +11,6 @@ type Result struct {
 	Id                 string `json:"id"`
 	Number             int64  `json:"number"`
 	GenesisBlockHeight int64  `json:"genesis_block_height""`
-	//还有一些参数，目前用不上
+	GenesisTimestamp   int64  `json:"genesis_timestamp"`
+	ContentLength      int64  `json:"content_length"`
 }

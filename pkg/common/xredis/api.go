@@ -2,6 +2,7 @@ package xredis
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-redis/redis/v9"
 	"time"
 )
@@ -16,6 +17,20 @@ func RealKey(key string) string {
 func Del(key string) error {
 	key = RealKey(key)
 	return cli.client.Del(context.Background(), key).Err()
+}
+
+func DelByPrefix(prefix string) {
+	prefix = RealKey(prefix)
+	keys, err := cli.client.Keys(context.Background(), fmt.Sprintf("%s*", prefix)).Result()
+	if err != nil {
+		log.Errorf("query redis keys err : %v", err)
+	}
+	if len(keys) == 0 {
+		return
+	}
+	if err := cli.client.Del(context.Background(), keys...).Err(); err != nil {
+		log.Errorf("delete redis key err : %v", err)
+	}
 }
 
 func TTL(key string) time.Duration {

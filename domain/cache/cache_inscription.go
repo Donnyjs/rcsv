@@ -4,12 +4,12 @@ import (
 	"rcsv/domain/po"
 	"rcsv/pkg/common/xredis"
 	"rcsv/pkg/constant"
-	"time"
+	"rcsv/pkg/utils"
 )
 
 type InscriptionCache interface {
-	SetInscriptionList(resp []po.Inscription) (err error)
-	GetInscriptionList() (resp []po.Inscription, err error)
+	SetInscriptionList(tp string, resp []po.Inscription) (err error)
+	GetInscriptionList(tp string) (resp []po.Inscription, err error)
 	DeleteInscriptionList()
 	ListExist() bool
 	CurrentInscriptionNumber() int
@@ -24,25 +24,38 @@ func NewInscriptionCache() InscriptionCache {
 	return &inscriptionCacheCache{}
 }
 
-func (c *inscriptionCacheCache) SetInscriptionList(resp []po.Inscription) (err error) {
+func (c *inscriptionCacheCache) SetInscriptionList(tp string, resp []po.Inscription) (err error) {
 	var (
-		key = constant.Inscription_List
+		key = constant.Inscription_List + tp
 	)
 	log.Infof("resp: %v", resp)
-	return Set(key, resp, time.Hour)
+	return Set(key, resp, 0)
 }
 
-func (c *inscriptionCacheCache) GetInscriptionList() (resp []po.Inscription, err error) {
+func (c *inscriptionCacheCache) GetInscriptionList(tp string) (resp []po.Inscription, err error) {
 	var (
-		key = constant.Inscription_List
+		key = constant.Inscription_List + tp
 	)
-	resp = make([]po.Inscription, 10)
-	err = Get(key, resp)
-	return
+	var list []po.Inscription
+	jsonStr, err := xredis.Get(key)
+	log.Infof("str: %s ", jsonStr)
+	if err != nil {
+		log.Error(ERROR_CACHE_REDIS_GET_FAILED, err.Error())
+		return
+	}
+	if jsonStr == "" {
+		return
+	}
+	err = utils.Unmarshal(jsonStr, &list)
+	log.Infof("out: %v", list)
+	if err != nil {
+		log.Warn(ERROR_CACHE_PROTOCOL_UNMARSHAL_ERR, err.Error())
+	}
+	return list, nil
 }
 
 func (c *inscriptionCacheCache) DeleteInscriptionList() {
-	xredis.Del(constant.Inscription_List)
+	xredis.DelByPrefix(constant.Inscription_List)
 }
 
 func (c *inscriptionCacheCache) ListExist() bool {
