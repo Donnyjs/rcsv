@@ -14,6 +14,7 @@ type InscriptionRepository interface {
 	CountDoodinals() (count int64, err error)
 	CountOthers() (count int64, err error)
 	CheckInscription(w *entity.MysqlWhere) (inscription *po.Inscription, err error)
+	QueryByNumber(w *entity.MysqlWhere) (inscription *po.Inscription, err error)
 }
 
 type inscriptionRepository struct {
@@ -21,6 +22,13 @@ type inscriptionRepository struct {
 
 func NewInscriptionRepository() InscriptionRepository {
 	return &inscriptionRepository{}
+}
+
+func (r *inscriptionRepository) QueryByNumber(w *entity.MysqlWhere) (inscription *po.Inscription, err error) {
+	inscription = new(po.Inscription)
+	db := xmysql.GetDB()
+	err = db.Select("inscription,inscription_id").Where(w.Query, w.Args...).Find(inscription).Error
+	return
 }
 
 func (r *inscriptionRepository) Insert(inscription *po.Inscription) (err error) {

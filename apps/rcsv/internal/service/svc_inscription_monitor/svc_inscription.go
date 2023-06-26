@@ -13,4 +13,5 @@ type Result struct {
 	GenesisBlockHeight int64  `json:"genesis_block_height""`
 	GenesisTimestamp   int64  `json:"genesis_timestamp"`
 	ContentLength      int64  `json:"content_length"`
+	Address            string `json:"address"`
 }

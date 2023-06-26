@@ -12,6 +12,7 @@ type Inscription struct {
 	GenesisBlockHeight int64  `gorm:"column:genesis_block_height;NOT NULL" json:"genesis_block_height"`
 	GenesisTimestamp   int64  `gorm:"column:genesis_timestamp;NOT NULL" json:"genesis_timestamp"`
 	ContentLength      int64  `gorm:"column:content_length;NOT NULL" json:"content_length"`
+	Owner              string `gorm:"column:owner;NOT NULL" json:"owner"`
 }
 
 func (Inscription) TableName() string {
