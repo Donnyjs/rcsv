@@ -5,11 +5,14 @@ import (
 	"fmt"
 	logger "github.com/ipfs/go-log"
 	"github.com/tealeg/xlsx"
-	"rcsv/apps/rcsv/internal/config"
+	"rcsv/apps/rcsv/config"
 	"rcsv/apps/rcsv/internal/service/svc_inscription_monitor"
 	"rcsv/domain/cache"
+	oss2 "rcsv/domain/oss"
+	"rcsv/domain/po"
 	"rcsv/domain/repo"
 	"rcsv/pkg/common/xmysql"
+	"rcsv/pkg/common/xoss"
 	"rcsv/pkg/common/xredis"
 	"rcsv/pkg/constant"
 	"rcsv/pkg/entity"
@@ -25,6 +28,7 @@ func init() {
 	conf := config.GetConfig()
 	xmysql.NewMysqlClient(conf.Mysql)
 	xredis.NewRedisClient(conf.Redis)
+	xoss.NewOssClient(conf.Oss)
 }
 
 func main() {
@@ -38,7 +42,8 @@ func main() {
 func jiaban() {
 	repo := repo.NewInscriptionRepository()
 	cache := cache.NewInscriptionCache()
-	monitor := svc_inscription_monitor.NewInscriptionMonitor(cache, repo)
+	oss := oss2.NewInscriptionOss()
+	monitor := svc_inscription_monitor.NewInscriptionMonitor(cache, repo, oss)
 	_ = monitor
 	data, _ := readFirstDataExcel()
 	log.Infof("data: %v", data)
@@ -122,7 +127,8 @@ func QueryInscriptionList() {
 	//92525    12720431   12720413  12597950
 	repo := repo.NewInscriptionRepository()
 	cache := cache.NewInscriptionCache()
-	monitor := svc_inscription_monitor.NewInscriptionMonitor(cache, repo)
+	oss := oss2.NewInscriptionOss()
+	monitor := svc_inscription_monitor.NewInscriptionMonitor(cache, repo, oss)
 	monitor.FetchList(60, 0, constant.INSCRIPTION_LIST_ARGS)
 }
 
@@ -130,7 +136,8 @@ func QueryInscriptionContent() {
 	//92525    12720431   12720413  12597950
 	repo := repo.NewInscriptionRepository()
 	cache := cache.NewInscriptionCache()
-	monitor := svc_inscription_monitor.NewInscriptionMonitor(cache, repo)
+	oss := oss2.NewInscriptionOss()
+	monitor := svc_inscription_monitor.NewInscriptionMonitor(cache, repo, oss)
 	content, _ := monitor.Content("ba41b5324fd09681fb7a7be3ed8cca3154db0062d7cb1da09f723b34edae2688i0")
 	fmt.Println(string(content))
 	utils.ContainDataClctUtil(content)
@@ -142,7 +149,8 @@ func InitData() {
 
 	repo := repo.NewInscriptionRepository()
 	cache := cache.NewInscriptionCache()
-	monitor := svc_inscription_monitor.NewInscriptionMonitor(cache, repo)
+	oss := oss2.NewInscriptionOss()
+	monitor := svc_inscription_monitor.NewInscriptionMonitor(cache, repo, oss)
 	var (
 		limit  int64 = 60
 		offset int64 = 0
@@ -180,19 +188,31 @@ func InitData() {
 					}
 					_ = tp
 					_ = list
-					//var inscription po.Inscription
-					//inscription.Id = utils.NewUUID()
-					//inscription.Inscription = v.Number
-					//inscription.InscriptionId = v.Id
-					//inscription.DataType = tp
-					//inscription.ContentLength = v.ContentLength
-					//inscription.GenesisTimestamp = v.GenesisTimestamp
-					//inscription.GenesisBlockHeight = v.GenesisBlockHeight
-					//inscription.RecursiveNum = int64(len(list))
+					var inscription po.Inscription
+					inscription.Id = utils.NewUUID()
+					inscription.Inscription = v.Number
+					inscription.InscriptionId = v.Id
+					inscription.DataType = tp
+					inscription.ContentLength = v.ContentLength
+					inscription.GenesisTimestamp = v.GenesisTimestamp
+					inscription.GenesisBlockHeight = v.GenesisBlockHeight
+					inscription.RecursiveNum = int64(len(list))
+
+					w := entity.NewMysqlWhere()
+					w.SetFilter("inscription=?", v.Number)
+					res, _ := repo.QueryByNumber(w)
+					if res.Pic != "" {
+						log.Info("pic is already written")
+					}
+
+					picUrl, err := oss.PutImage(&inscription)
+					if err != nil {
+						log.Error("putImage failure: ", err)
+					}
 					//err = repo.Insert(&inscription)
 					u := entity.NewMysqlUpdate()
 					u.SetFilter("inscription=?", v.Number)
-					u.Set("owner", v.Address)
+					u.Set("pic", picUrl)
 					//u.Set("recursive_num", int64(len(list)))
 					//u.Set("genesis_timestamp", v.GenesisTimestamp)
 					//u.Set("genesis_block_height", v.GenesisBlockHeight)

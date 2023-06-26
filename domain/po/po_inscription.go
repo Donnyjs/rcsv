@@ -13,6 +13,7 @@ type Inscription struct {
 	GenesisTimestamp   int64  `gorm:"column:genesis_timestamp;NOT NULL" json:"genesis_timestamp"`
 	ContentLength      int64  `gorm:"column:content_length;NOT NULL" json:"content_length"`
 	Owner              string `gorm:"column:owner;NOT NULL" json:"owner"`
+	Pic                string `gorm:"column:pic;NOT NULL" json:"pic"`
 }
 
 func (Inscription) TableName() string {

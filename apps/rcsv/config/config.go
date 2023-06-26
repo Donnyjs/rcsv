@@ -17,6 +17,7 @@ type Config struct {
 	Port  int        `yaml:"port"`
 	Redis conf.Redis `yaml:"redis"`
 	Mysql conf.Mysql `yaml:"mysql"`
+	Oss   conf.Oss   `yaml:"oss"`
 }
 
 var (

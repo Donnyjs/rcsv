@@ -1,7 +1,7 @@
 package server
 
 import (
-	"rcsv/apps/rcsv/internal/config"
+	"rcsv/apps/rcsv/config"
 	"rcsv/apps/rcsv/internal/router"
 	"rcsv/pkg/commands"
 	"rcsv/pkg/common/xgin"

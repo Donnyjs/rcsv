@@ -2,6 +2,7 @@ package svc_inscription_monitor
 
 import (
 	"rcsv/domain/cache"
+	"rcsv/domain/oss"
 	"rcsv/domain/po"
 	"rcsv/domain/repo"
 	"rcsv/pkg/constant"
@@ -12,12 +13,14 @@ import (
 type InscriptionMonitor struct {
 	Cache cache.InscriptionCache
 	Repo  repo.InscriptionRepository
+	Oss   oss.InscriptionOss
 }
 
-func NewInscriptionMonitor(cache cache.InscriptionCache, repo repo.InscriptionRepository) *InscriptionMonitor {
+func NewInscriptionMonitor(cache cache.InscriptionCache, repo repo.InscriptionRepository, oss oss.InscriptionOss) *InscriptionMonitor {
 	monitor := &InscriptionMonitor{
 		Cache: cache,
 		Repo:  repo,
+		Oss:   oss,
 	}
 	return monitor
 }
@@ -63,6 +66,11 @@ func (im *InscriptionMonitor) Run() {
 				inscription.GenesisTimestamp = v.GenesisTimestamp
 				inscription.GenesisBlockHeight = v.GenesisBlockHeight
 				inscription.RecursiveNum = int64(len(list))
+				picUrl, err := im.Oss.PutImage(&inscription)
+				if err != nil {
+					log.Error("putImage failure: ", err)
+				}
+				inscription.Pic = picUrl
 				err = im.Repo.Insert(&inscription)
 				if err != nil {
 					log.Errorf("insert err: %v, id: %s, number: %d", err, v.Id, v.Number)
