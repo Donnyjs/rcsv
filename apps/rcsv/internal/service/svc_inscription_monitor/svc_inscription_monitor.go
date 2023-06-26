@@ -66,6 +66,7 @@ func (im *InscriptionMonitor) Run() {
 				inscription.GenesisTimestamp = v.GenesisTimestamp
 				inscription.GenesisBlockHeight = v.GenesisBlockHeight
 				inscription.RecursiveNum = int64(len(list))
+				inscription.Owner = v.Address
 				picUrl, err := im.Oss.PutImage(&inscription)
 				if err != nil {
 					log.Error("putImage failure: ", err)

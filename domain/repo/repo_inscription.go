@@ -27,7 +27,7 @@ func NewInscriptionRepository() InscriptionRepository {
 func (r *inscriptionRepository) QueryByNumber(w *entity.MysqlWhere) (inscription *po.Inscription, err error) {
 	inscription = new(po.Inscription)
 	db := xmysql.GetDB()
-	err = db.Select("inscription,inscription_id").Where(w.Query, w.Args...).Find(inscription).Error
+	err = db.Select("owner,inscription,inscription_id").Where(w.Query, w.Args...).Find(inscription).Error
 	return
 }
 

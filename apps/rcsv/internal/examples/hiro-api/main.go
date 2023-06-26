@@ -49,6 +49,7 @@ func jiaban() {
 	log.Infof("data: %v", data)
 	var resp []Resp
 	m := make(map[string]int64, 0)
+	o := make(map[string]int64, 0)
 	for _, v := range data {
 		w := entity.NewMysqlWhere()
 		w.SetFilter("inscription=?", v.Number)
@@ -60,20 +61,30 @@ func jiaban() {
 				Name: v.Name,
 			},
 		})
-		//if inscription.Inscription == 0 {
-		//	continue
-		//}
-		//time.Sleep(time.Second * 1)
-		//content, _ := monitor.Content(inscription.InscriptionId)
-		//if _, have := m[string(content)]; have {
-		//	log.Infof("--------")
-		//	log.Infof("id: %d", m[string(content)])
-		//	m[string(content)] = inscription.Inscription
-		//	log.Infof("id : %d", inscription.Inscription)
-		//	log.Infof("--------")
-		//} else {
-		//	m[string(content)] = inscription.Inscription
-		//}
+		if inscription.Inscription == 0 {
+			continue
+		}
+		time.Sleep(time.Second * 1)
+		content, _ := monitor.Content(inscription.InscriptionId)
+		if _, have := m[string(content)]; have {
+			log.Infof("--------")
+			log.Infof("id: %d", m[string(content)])
+			m[string(content)] = inscription.Inscription
+			log.Infof("id : %d", inscription.Inscription)
+			log.Infof("--------")
+		} else {
+			m[string(content)] = inscription.Inscription
+		}
+
+		if _, have := o[inscription.Owner]; have {
+			log.Infof("========")
+			log.Infof("id: %d", o[inscription.Owner])
+			o[inscription.Owner] = inscription.Inscription
+			log.Infof("id : %d", inscription.Inscription)
+			log.Infof("=======")
+		} else {
+			o[inscription.Owner] = inscription.Inscription
+		}
 	}
 
 	log.Infof("len: %d", len(m))
@@ -95,7 +106,7 @@ type Metadata struct {
 	Name string `json:"name"`
 }
 
-const path = "/Users/dongjs/Desktop/副本RCSV第一批200个入选.xlsx"
+const path = "/Users/dongjs/Desktop/201-400 待查验(1).xlsx"
 
 func readFirstDataExcel() ([]*Data, error) {
 	xlFile, err := xlsx.OpenFile(path)
@@ -104,18 +115,20 @@ func readFirstDataExcel() ([]*Data, error) {
 		return []*Data{}, err
 	}
 	var data []*Data
+	name := 200
 	for _, sheet := range xlFile.Sheets {
 		log.Infof("sheet name : %s", sheet.Name)
 		for _, row := range sheet.Rows {
-			if row.Cells[1].String() == "number" {
+			if row.Cells[0].String() == "Inscription ID" {
 				continue
 			}
-			number, _ := strconv.Atoi(row.Cells[1].String())
+			name++
+			number, _ := strconv.Atoi(row.Cells[0].String())
 
-			log.Infof("number : %d, name : %s", number, row.Cells[2].String())
+			log.Infof("number : %d", number)
 			data = append(data, &Data{
 				Number: number,
-				Name:   "Recursive Doodinal " + row.Cells[2].String(),
+				Name:   "Recursive Doodinal #" + strconv.Itoa(name),
 			})
 		}
 		log.Infof("\n")
@@ -144,7 +157,7 @@ func QueryInscriptionContent() {
 }
 
 func InitData() {
-	ticker := time.NewTicker(time.Second * 10)
+	ticker := time.NewTicker(time.Second * 1)
 	defer ticker.Stop()
 
 	repo := repo.NewInscriptionRepository()
@@ -197,6 +210,9 @@ func InitData() {
 					inscription.GenesisTimestamp = v.GenesisTimestamp
 					inscription.GenesisBlockHeight = v.GenesisBlockHeight
 					inscription.RecursiveNum = int64(len(list))
+					inscription.Owner = v.Address
+					//err = repo.Insert(&inscription)
+
 
 					w := entity.NewMysqlWhere()
 					w.SetFilter("inscription=?", v.Number)
@@ -209,7 +225,7 @@ func InitData() {
 					if err != nil {
 						log.Error("putImage failure: ", err)
 					}
-					//err = repo.Insert(&inscription)
+
 					u := entity.NewMysqlUpdate()
 					u.SetFilter("inscription=?", v.Number)
 					u.Set("pic", picUrl)
@@ -217,11 +233,11 @@ func InitData() {
 					//u.Set("genesis_timestamp", v.GenesisTimestamp)
 					//u.Set("genesis_block_height", v.GenesisBlockHeight)
 					//u.Set("content_length", v.ContentLength)
-					err = repo.Update(u)
-					if err != nil {
-						log.Errorf("update err: %v, id: %s, number: %d", err, v.Id, v.Number)
-						return
-					}
+					//err = repo.Update(u)
+					//if err != nil {
+					//	log.Errorf("update err: %v, id: %s, number: %d", err, v.Id, v.Number)
+					//	return
+					//}
 					//cache.SetCurrentInscriptionNumber(int(v.Number))
 				}(data)
 			}
