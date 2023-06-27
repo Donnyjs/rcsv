@@ -69,3 +69,36 @@ func (ctrl *InscriptionCtrl) V2List(c *gin.Context) {
 		xhttp.Error(c, xhttp.ERROR_CODE_HTTP_REQ_DESERIALIZE_FAILED, xhttp.ERROR_HTTP_REQ_DESERIALIZE_FAILED)
 	}
 }
+
+func (ctrl *InscriptionCtrl) CollectionList(c *gin.Context) {
+	var (
+		resp *xhttp.Resp
+	)
+	var service dto_inscription.InscriptionListReq
+	if err := c.BindQuery(&service); err == nil {
+		if service.Sort == constant.LEAST_RECURSIONS {
+			service.Sort = constant.RECURSIONS_TABLE_ASC
+		} else if service.Sort == constant.Most_RECURSIONS {
+			service.Sort = constant.RECURSIONS_TABLE_DESC
+		} else if service.Sort == constant.NEWEST {
+			service.Sort = constant.INSCRIPTION_TABLE_DESC
+		} else if service.Sort == constant.OLDEST {
+			service.Sort = constant.INSCRIPTION_TABLE_ASC
+		} else if service.Sort == constant.DEFAULT_NEWEST {
+			service.Sort = constant.METANUMD_DESC
+		} else if service.Sort == constant.DEFAULT_OLDEST {
+			service.Sort = constant.METANUMD_ASC
+		} else {
+			xhttp.Error(c, xhttp.ERROR_CODE_HTTP_REQ_PARAM_ERR, xhttp.ERROR_HTTP_REQ_PARAM_ERR)
+			return
+		}
+		resp = ctrl.rcsvService.CollectionList(service.Sort, service.Page, service.Limit)
+		if resp.Code > 0 {
+			xhttp.Error(c, resp.Code, resp.Msg)
+			return
+		}
+		xhttp.Success(c, resp.Data)
+	} else {
+		xhttp.Error(c, xhttp.ERROR_CODE_HTTP_REQ_DESERIALIZE_FAILED, xhttp.ERROR_HTTP_REQ_DESERIALIZE_FAILED)
+	}
+}
