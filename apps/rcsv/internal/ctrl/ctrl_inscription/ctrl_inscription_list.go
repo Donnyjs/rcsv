@@ -2,6 +2,8 @@ package ctrl_inscription
 
 import (
 	"github.com/gin-gonic/gin"
+	"net/url"
+	"rcsv/apps/rcsv/internal/dto/dto_collection"
 	"rcsv/apps/rcsv/internal/dto/dto_inscription"
 	"rcsv/pkg/common/xhttp"
 	"rcsv/pkg/constant"
@@ -101,4 +103,26 @@ func (ctrl *InscriptionCtrl) CollectionList(c *gin.Context) {
 	} else {
 		xhttp.Error(c, xhttp.ERROR_CODE_HTTP_REQ_DESERIALIZE_FAILED, xhttp.ERROR_HTTP_REQ_DESERIALIZE_FAILED)
 	}
+}
+
+func (ctrl *InscriptionCtrl) DownloadPic(c *gin.Context) {
+	var service dto_collection.DownloadReq
+	if err := c.ShouldBind(&service); err == nil {
+		parsedURL, err := url.Parse(service.Url)
+		if err != nil {
+			xhttp.Error(c, xhttp.ERROR_CODE_HTTP_REQ_PARAM_ERR, xhttp.ERROR_HTTP_REQ_PARAM_ERR)
+			return
+		}
+
+		if parsedURL.Scheme == "" || (parsedURL.Scheme != "http" && parsedURL.Scheme != "https") || parsedURL.Host == "" {
+			xhttp.Error(c, xhttp.ERROR_CODE_HTTP_REQ_PARAM_ERR, xhttp.ERROR_HTTP_REQ_PARAM_ERR)
+			return
+		}
+
+		ctrl.rcsvService.DownloadPic(c, service.Url, service.Width, service.Height)
+
+	} else {
+		xhttp.Error(c, xhttp.ERROR_CODE_HTTP_REQ_DESERIALIZE_FAILED, xhttp.ERROR_HTTP_REQ_DESERIALIZE_FAILED)
+	}
+
 }

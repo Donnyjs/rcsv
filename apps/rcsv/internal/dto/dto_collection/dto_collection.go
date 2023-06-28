@@ -20,3 +20,9 @@ type CollectionListReq struct {
 	Page  int    `form:"page"`
 	Limit int    `form:"limit"`
 }
+
+type DownloadReq struct {
+	Url    string `form:"url"`
+	Width  int64  `form:"width"`
+	Height int64  `form:"height"`
+}

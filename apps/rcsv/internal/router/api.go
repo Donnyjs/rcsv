@@ -51,4 +51,5 @@ func registerV2InscriptionsRouter(group *gin.RouterGroup) {
 	router.GET("list", ctrl.V2List)
 	rcsv := group.Group("collection")
 	rcsv.GET("list", ctrl.CollectionList)
+	rcsv.POST("download", ctrl.DownloadPic)
 }

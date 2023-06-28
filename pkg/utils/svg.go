@@ -60,13 +60,13 @@ func ContainDataClctUtil(body []byte) (bool, string, []string, error) {
 func ScreenShot(InscriptionId string) (imageBuf []byte, err error) {
 	ctx, cancel := chromedp.NewContext(context.Background(), chromedp.WithDebugf(loger.Printf))
 	defer cancel()
-	err = chromedp.Run(ctx, ScreenshotTasks(fmt.Sprintf(constant.INSCRIPTION_INFO, InscriptionId), &imageBuf))
+	err = chromedp.Run(ctx, ScreenshotTasks(fmt.Sprintf(constant.INSCRIPTION_INFO, InscriptionId), &imageBuf, 2048, 2048))
 	return imageBuf, err
 }
 
-func ScreenshotTasks(url string, imageBuf *[]byte) chromedp.Tasks {
+func ScreenshotTasks(url string, imageBuf *[]byte, width, height int64) chromedp.Tasks {
 	return chromedp.Tasks{
-		chromedp.EmulateViewport(2048, 2048),
+		chromedp.EmulateViewport(width, height),
 		chromedp.Navigate(url),
 		chromedp.FullScreenshot(imageBuf, 90),
 	}

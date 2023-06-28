@@ -40,6 +40,7 @@ func main() {
 	//jiaban()
 	//InsertRcsv()
 	//ordyssey1()
+	//DownloadPicSet(1, 10)
 }
 
 func InsertRcsv() {
@@ -161,16 +162,16 @@ func InitData() {
 					}
 					_ = tp
 					_ = list
-					//var inscription po.Inscription
-					//inscription.Id = utils.NewUUID()
-					//inscription.Inscription = v.Number
-					//inscription.InscriptionId = v.Id
-					//inscription.DataType = tp
-					//inscription.ContentLength = v.ContentLength
-					//inscription.GenesisTimestamp = v.GenesisTimestamp
-					//inscription.GenesisBlockHeight = v.GenesisBlockHeight
-					//inscription.RecursiveNum = int64(len(list))
-					//inscription.Owner = v.Address
+					var inscription po.Inscription
+					inscription.Id = utils.NewUUID()
+					inscription.Inscription = v.Number
+					inscription.InscriptionId = v.Id
+					inscription.DataType = tp
+					inscription.ContentLength = v.ContentLength
+					inscription.GenesisTimestamp = v.GenesisTimestamp
+					inscription.GenesisBlockHeight = v.GenesisBlockHeight
+					inscription.RecursiveNum = int64(len(list))
+					inscription.Owner = v.Address
 					//err = repo.Insert(&inscription)
 
 					//w := entity.NewMysqlWhere()
@@ -181,14 +182,14 @@ func InitData() {
 					//	return
 					//}
 
-					//picUrl, err := oss.PutImage(&inscription)
-					//if err != nil {
-					//	log.Error("putImage failure: ", err)
-					//}
-					//log.Infof("picUrl: %s,number: %d", picUrl, v.Number)
+					picUrl, err := oss.PutImage(&inscription)
+					if err != nil {
+						log.Error("putImage failure: ", err)
+					}
+					log.Infof("picUrl: %s,number: %d", picUrl, v.Number)
 					u := entity.NewMysqlUpdate()
 					u.SetFilter("inscription=?", v.Number)
-					//u.Set("pic", picUrl)
+					u.Set("pic", picUrl)
 					//u.Set("recursive_num", int64(len(list)))
 					//u.Set("genesis_timestamp", v.GenesisTimestamp)
 					//u.Set("genesis_block_height", v.GenesisBlockHeight)
