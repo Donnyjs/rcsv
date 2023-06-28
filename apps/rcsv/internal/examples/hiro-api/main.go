@@ -36,7 +36,8 @@ func main() {
 	logger.SetAllLoggers(logger.LevelInfo)
 	//QueryInscriptionList()
 	//QueryInscriptionContent()
-	InitData()
+	//InitData()
+	LeakPic()
 	//jiaban()
 	//InsertRcsv()
 }
@@ -188,8 +189,76 @@ func QueryInscriptionContent() {
 	utils.ContainDataClctUtil(content)
 }
 
+func LeakPic() {
+	repos := repo.NewInscriptionRepository()
+	oss := oss2.NewInscriptionOss()
+	cache := cache.NewInscriptionCache()
+	var (
+		w = entity.NewMysqlWhere()
+	)
+	w.SetFilter("pic=?", "")
+	list, err := repos.List(w)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	monitor := svc_inscription_monitor.NewInscriptionMonitor(cache, repos, oss)
+	var (
+		limit  int64 = 60
+		offset int64 = 0
+	)
+	throttle := make(chan struct{}, 5)
+	var wg sync.WaitGroup
+	for _, inscription := range list {
+		wg.Add(1)
+		throttle <- struct{}{}
+		go func(inscription po.Inscription) {
+			defer func() {
+				wg.Done()
+				<-throttle
+			}()
+			resp, err := monitor.FetchList(limit, offset, "&order=desc&order_by=genesis_block_height&mime_type=image%2Fsvg%2Bxml&from_number="+strconv.FormatInt(inscription.Inscription, 10)+"&to_number="+strconv.FormatInt(inscription.Inscription, 10))
+			if err != nil {
+				log.Errorf("fetchList err: %v, offset: %d", err, offset)
+				return
+			}
+
+			for _, v := range resp.Results {
+
+				var ins po.Inscription
+				ins.Id = utils.NewUUID()
+				ins.Inscription = v.Number
+				ins.InscriptionId = v.Id
+				ins.ContentLength = v.ContentLength
+				ins.GenesisTimestamp = v.GenesisTimestamp
+				ins.GenesisBlockHeight = v.GenesisBlockHeight
+				ins.RecursiveNum = int64(len(list))
+				ins.Owner = v.Address
+
+				picUrl, err := oss.PutImage(&ins)
+				if err != nil {
+					log.Error("putImage failure: ", err)
+				}
+				log.Infof("picUrl: %s,number: %d", picUrl, v.Number)
+				u := entity.NewMysqlUpdate()
+				u.SetFilter("inscription=?", v.Number)
+				u.Set("pic", picUrl)
+
+				err = repos.Update(u)
+				if err != nil {
+					log.Errorf("update err: %v, id: %s, number: %d", err, v.Id, v.Number)
+					return
+				}
+			}
+		}(inscription)
+
+	}
+	wg.Wait()
+	fmt.Println(len(list))
+}
+
 func InitData() {
-	ticker := time.NewTicker(time.Second * 8)
+	ticker := time.NewTicker(time.Second * 1)
 	defer ticker.Stop()
 
 	repo := repo.NewInscriptionRepository()
@@ -198,7 +267,7 @@ func InitData() {
 	monitor := svc_inscription_monitor.NewInscriptionMonitor(cache, repo, oss)
 	var (
 		limit  int64 = 60
-		offset int64 = 26660
+		offset int64 = 0
 	)
 	for {
 		select {
