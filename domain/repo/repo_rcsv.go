@@ -8,6 +8,7 @@ import (
 type RCSVRepository interface {
 	Insert(inscription *po.RcsvCollection) (err error)
 	List(sort string, page, limit int) (list []po.InscriptionInfoWithMetaNum, err error)
+	CountCollection() (count int64, err error)
 }
 
 type rcsvRepository struct {
@@ -32,5 +33,11 @@ func (rcsvRepository) List(sort string, page, limit int) (list []po.InscriptionI
 		Order(sort).
 		Limit(limit).Offset(limit * (page - 1)).
 		Find(&list)
+	return
+}
+
+func (rcsvRepository) CountCollection() (count int64, err error) {
+	db := xmysql.GetDB()
+	err = db.Model(po.RcsvCollection{}).Count(&count).Error
 	return
 }

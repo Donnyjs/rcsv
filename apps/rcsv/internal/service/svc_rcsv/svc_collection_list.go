@@ -2,6 +2,7 @@ package svc_rcsv
 
 import (
 	logger "github.com/ipfs/go-log"
+	"rcsv/apps/rcsv/internal/dto/dto_collection"
 	"rcsv/pkg/common/xhttp"
 )
 
@@ -19,7 +20,13 @@ func (s *collectionService) CollectionList(sort string, page, limit int) (resp *
 		resp.SetResult(xhttp.ERROR_CODE_SERVER_INTERNAL_ERR, xhttp.ERROR_SERVER_INTERNAL_ERR)
 		return
 	}
-	resp.Data = list
+
+	count, err := s.RcsvRepo.CountCollection()
+
+	var dtoResp dto_collection.CollectionListResp
+	dtoResp.DoodinalsTotal = count
+	dtoResp.Data = list
+	resp.Data = dtoResp
 	log.Infof("resp: %v", resp)
 	return
 

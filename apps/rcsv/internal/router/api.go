@@ -42,10 +42,8 @@ func registerV1InscriptionsRouter(group *gin.RouterGroup) {
 func registerV2InscriptionsRouter(group *gin.RouterGroup) {
 	var svc svc_inscription.InscriptionService
 	var csvc svc_rcsv.CollectionService
-	dig.Invoke(func(s svc_inscription.InscriptionService) {
+	dig.Invoke(func(s svc_inscription.InscriptionService, c svc_rcsv.CollectionService) {
 		svc = s
-	})
-	dig.Invoke(func(c svc_rcsv.CollectionService) {
 		csvc = c
 	})
 	ctrl := ctrl_inscription.NewInscriptionCtrl(svc, csvc)
