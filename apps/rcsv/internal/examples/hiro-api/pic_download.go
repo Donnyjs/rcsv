@@ -32,7 +32,7 @@ func DownloadPicSet(numStart int64, numEnd int64) {
 			}
 
 			// 创建本地文件
-			file, err := os.Create(stroagePath + strconv.FormatInt(collection.MetaNum, 10) + ".png")
+			file, err := os.Create(stroagePath + "Recursive Doodinal #" + strconv.FormatInt(collection.MetaNum, 10) + ".png")
 			if err != nil {
 				log.Error(err)
 				return

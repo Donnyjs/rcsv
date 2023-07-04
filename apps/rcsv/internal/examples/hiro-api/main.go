@@ -35,12 +35,35 @@ func main() {
 	logger.SetAllLoggers(logger.LevelInfo)
 	//QueryInscriptionList()
 	//QueryInscriptionContent()
-	InitData()
+	//InitData()
 	//LeakPic()
 	//jiaban()
 	//InsertRcsv()
 	//ordyssey1()
-	//DownloadPicSet(1, 10)
+	//DownloadPicSet(642, 736)
+	AnalysisHistoryData()
+
+	//fir := time.Now()
+	//repo := repo.NewInscriptionRepository()
+	//cache := cache.NewInscriptionCache()
+	//oss := oss2.NewInscriptionOss()
+	//monitor := svc_inscription_monitor.NewInscriptionMonitor(cache, repo, oss)
+	//sec := time.Now()
+	//fmt.Println(sec.Sub(fir).String())
+	//content, err := monitor.Content("a557687a1566cab7c6d59992a0db5b342ac189ce36207c36a5d91360cfb8b491i0")
+	//if err != nil {
+	//	return
+	//}
+	//thi := time.Now()
+	//fmt.Println(thi.Sub(sec).String())
+	//_, _, res, _ := utils.ContainDataClctUtil(content)
+	//
+	//four := time.Now()
+	//fmt.Println(four.Sub(thi).String())
+	//for _, re := range res {
+	//	fmt.Println(re)
+	//}
+
 }
 
 func InsertRcsv() {

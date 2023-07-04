@@ -10,6 +10,7 @@ import (
 	loger "log"
 	"rcsv/pkg/constant"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -52,7 +53,8 @@ func ContainDataClctUtil(body []byte) (bool, string, []string, error) {
 	}
 	images := make([]string, 0)
 	for index := range i.Image {
-		images = append(images, i.Image[index].Href)
+		strings.Split(i.Image[index].Href, "/content/")
+		images = append(images, strings.Split(i.Image[index].Href, "/content/")[1])
 	}
 	return true, tp, images, nil
 }

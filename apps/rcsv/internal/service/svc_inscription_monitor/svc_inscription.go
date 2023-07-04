@@ -14,4 +14,5 @@ type Result struct {
 	GenesisTimestamp   int64  `json:"genesis_timestamp"`
 	ContentLength      int64  `json:"content_length"`
 	Address            string `json:"address"`
+	MimeType           string `json:"mime_type"`
 }
