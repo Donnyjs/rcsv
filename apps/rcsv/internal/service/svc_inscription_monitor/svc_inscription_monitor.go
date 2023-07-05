@@ -106,6 +106,9 @@ func (im *InscriptionMonitor) RecursiveMonitor() {
 				continue
 			}
 			for _, v := range resp.Results {
+				if int(v.Number) <= currentNumber {
+					continue
+				}
 				var list []string
 				content, err := im.Content(v.Id)
 				if err != nil {
