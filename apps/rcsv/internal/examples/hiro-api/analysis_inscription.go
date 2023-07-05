@@ -38,7 +38,7 @@ func AnalysisHistoryData() {
 				log.Errorf("fetchList err: %v, offset: %d", err, offset)
 				continue
 			}
-			if resp.Total <= limit+offset && offset != 0 {
+			if resp.Total <= limit+offset && offset != 0 || resp.Total == 0 {
 				log.Infof("init data done,total: %d, offset:%d, from: %d, to: %d", resp.Total, offset, fromNumber, toNumber)
 				return
 			}

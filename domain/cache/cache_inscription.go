@@ -15,6 +15,9 @@ type InscriptionCache interface {
 	CurrentInscriptionNumber() int
 	SetCurrentInscriptionNumber(number int)
 	NumberExist() bool
+	CurrentRecursiveNumber() int
+	SetCurrentRecursiveNumber(number int)
+	RecursiveNumberExist() bool
 }
 
 type inscriptionCacheCache struct {
@@ -75,4 +78,19 @@ func (c *inscriptionCacheCache) SetCurrentInscriptionNumber(number int) {
 
 func (c *inscriptionCacheCache) NumberExist() bool {
 	return xredis.KeyExists(constant.Inscription_NUMBER)
+}
+
+func (c *inscriptionCacheCache) CurrentRecursiveNumber() int {
+	number, _ := xredis.GetInt(constant.RECURSIVE_NUMBER)
+	return number
+}
+
+func (c *inscriptionCacheCache) SetCurrentRecursiveNumber(number int) {
+	if number > c.CurrentInscriptionNumber() {
+		Set(constant.RECURSIVE_NUMBER, number, 0)
+	}
+}
+
+func (c *inscriptionCacheCache) RecursiveNumberExist() bool {
+	return xredis.KeyExists(constant.RECURSIVE_NUMBER)
 }

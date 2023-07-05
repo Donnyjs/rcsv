@@ -25,6 +25,9 @@ func init() {
 	container.Invoke(func(im *svc_inscription_monitor.InscriptionMonitor) {
 		go im.Run()
 	})
+	container.Invoke(func(im *svc_inscription_monitor.InscriptionMonitor) {
+		go im.RecursiveMonitor()
+	})
 }
 
 func Invoke(i interface{}) error {
