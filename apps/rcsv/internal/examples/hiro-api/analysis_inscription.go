@@ -26,8 +26,8 @@ func AnalysisHistoryData() {
 	var (
 		limit      int64 = 60
 		offset     int64 = 0
-		fromNumber int64 = 1
-		toNumber   int64 = 60000
+		fromNumber int64 = 14643987
+		toNumber   int64 = 0
 	)
 	for {
 		select {
@@ -117,7 +117,7 @@ func AnalysisHistoryData() {
 			}
 			wg.Wait()
 			offset += limit
-			if resp.Total <= limit+offset && offset != 0 {
+			if resp.Total <= limit+offset && offset != 0 && toNumber != 0 {
 				log.Infof("End of current round, from: %d,to: %d", fromNumber, toNumber)
 				fromNumber = toNumber + 1
 				toNumber += 60000

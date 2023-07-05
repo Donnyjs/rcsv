@@ -10,5 +10,5 @@ const (
 	FETCH_ALL_ARGS             = "&order=asc&order_by=genesis_block_height&mime_type=image/svg%sxml&mime_type=text/html&from_number=%d&to_number=%d"
 	MIME_HTML                  = "text/html"
 	MIME_SVG                   = "image/svg+xml"
-	RECURSIVE_MONITOR_ARGS     = "&order=desc&order_by=genesis_block_height&mime_type=image/svg%2Bxml&mime_type=text/html&from_number=14643986"
+	RECURSIVE_MONITOR_ARGS     = "&order=desc&order_by=genesis_block_height&mime_type=image/svg%2Bxml&mime_type=text/html&from_number=14796126"
 )
