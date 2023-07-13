@@ -1,6 +1,7 @@
 package svc_inscription_monitor
 
 import (
+	"fmt"
 	"rcsv/domain/cache"
 	"rcsv/domain/oss"
 	"rcsv/domain/po"
@@ -38,7 +39,7 @@ func (im *InscriptionMonitor) Run() {
 				currentNumber = im.Cache.CurrentInscriptionNumber()
 			}
 			log.Infof("current number: %d", currentNumber)
-			resp, err := im.FetchList(60, 0, constant.INSCRIPTION_LIST_ARGS)
+			resp, err := im.FetchList(60, 0, fmt.Sprintf(constant.INSCRIPTION_LIST_NEW_ARGS, "%2B", currentNumber, 0))
 			if err != nil {
 				log.Errorf("fetchList err: %v", err)
 				continue
@@ -100,7 +101,7 @@ func (im *InscriptionMonitor) RecursiveMonitor() {
 				currentNumber = im.Cache.CurrentRecursiveNumber()
 			}
 			log.Infof("current number: %d", currentNumber)
-			resp, err := im.FetchList(60, 0, constant.RECURSIVE_MONITOR_ARGS)
+			resp, err := im.FetchList(60, 0, fmt.Sprintf(constant.FETCH_ALL_ARGS, "%2B", currentNumber, 0))
 			if err != nil {
 				log.Errorf("fetchList err: %v", err)
 				continue
