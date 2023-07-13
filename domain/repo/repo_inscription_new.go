@@ -27,7 +27,7 @@ func (r *inscriptionNewRepository) Insert(inscription *po.InscriptionNew) (err e
 func (r *inscriptionNewRepository) List(w *entity.MysqlWhere) (list []po.InscriptionNew, err error) {
 	list = make([]po.InscriptionNew, 0)
 	db := xmysql.GetDB()
-	err = db.Model(po.Inscription{}).
+	err = db.Model(po.InscriptionNew{}).
 		Select("id,inscription,inscription_id, recursive_num, genesis_block_height, genesis_timestamp, content_length").
 		Where(w.Query, w.Args...).
 		Offset(w.Offset).
