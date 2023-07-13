@@ -35,7 +35,7 @@ func (im *InscriptionMonitor) Run() {
 		updateFlag := false
 		select {
 		case <-ticker.C:
-			currentNumber := 0
+			currentNumber := 16635490
 			if im.Cache.NumberExist() {
 				currentNumber = im.Cache.CurrentInscriptionNumber()
 			}
@@ -49,6 +49,7 @@ func (im *InscriptionMonitor) Run() {
 				if int(v.Number) <= currentNumber {
 					continue
 				}
+				im.Cache.SetCurrentInscriptionNumber(int(v.Number))
 				updateFlag = true
 				content, err := im.Content(v.Id)
 				if err != nil {
@@ -70,17 +71,18 @@ func (im *InscriptionMonitor) Run() {
 				inscription.RecursiveNum = int64(len(list))
 				inscription.Owner = v.Address
 				picUrl, err := im.Oss.PutImage(&inscription)
+				inscription.Pic = picUrl
 				if err != nil {
 					log.Error("putImage failure: ", err)
+					inscription.Pic = ""
 				}
-				inscription.Pic = picUrl
 				err = im.Repo.Insert(&inscription)
 				if err != nil {
 					log.Errorf("insert err: %v, id: %s, number: %d", err, v.Id, v.Number)
 					continue
 				}
 			}
-			im.Cache.SetCurrentInscriptionNumber(int(resp.Results[len(resp.Results)-1].Number))
+			log.Info("normal round is over,", int(resp.Results[len(resp.Results)-1].Number))
 			if updateFlag {
 				im.Cache.DeleteInscriptionList()
 			}
@@ -97,7 +99,7 @@ func (im *InscriptionMonitor) RecursiveMonitor() {
 	for {
 		select {
 		case <-ticker.C:
-			currentNumber := 0
+			currentNumber := 16408540
 			if im.Cache.RecursiveNumberExist() {
 				currentNumber = im.Cache.CurrentRecursiveNumber()
 			}
@@ -111,6 +113,8 @@ func (im *InscriptionMonitor) RecursiveMonitor() {
 				if int(v.Number) <= currentNumber {
 					continue
 				}
+				log.Info("this is number: ", int(v.Number))
+				im.Cache.SetCurrentRecursiveNumber(int(v.Number))
 				var list []string
 				content, err := im.Content(v.Id)
 				if err != nil {
@@ -177,7 +181,7 @@ func (im *InscriptionMonitor) RecursiveMonitor() {
 					}
 				}
 			}
-			im.Cache.SetCurrentRecursiveNumber(int(resp.Results[len(resp.Results)-1].Number))
+			log.Info("round is over,", int(resp.Results[len(resp.Results)-1].Number))
 		}
 	}
 }
