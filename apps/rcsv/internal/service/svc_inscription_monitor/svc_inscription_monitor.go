@@ -79,8 +79,8 @@ func (im *InscriptionMonitor) Run() {
 					log.Errorf("insert err: %v, id: %s, number: %d", err, v.Id, v.Number)
 					continue
 				}
-				im.Cache.SetCurrentInscriptionNumber(int(v.Number))
 			}
+			im.Cache.SetCurrentInscriptionNumber(int(resp.Results[len(resp.Results)-1].Number))
 			if updateFlag {
 				im.Cache.DeleteInscriptionList()
 			}
@@ -176,9 +176,8 @@ func (im *InscriptionMonitor) RecursiveMonitor() {
 						continue
 					}
 				}
-
-				im.Cache.SetCurrentRecursiveNumber(int(v.Number))
 			}
+			im.Cache.SetCurrentRecursiveNumber(int(resp.Results[len(resp.Results)-1].Number))
 		}
 	}
 }
