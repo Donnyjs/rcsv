@@ -86,7 +86,7 @@ func (c *inscriptionCacheCache) CurrentRecursiveNumber() int {
 }
 
 func (c *inscriptionCacheCache) SetCurrentRecursiveNumber(number int) {
-	if number > c.CurrentInscriptionNumber() {
+	if number > c.CurrentRecursiveNumber() {
 		Set(constant.RECURSIVE_NUMBER, number, 0)
 	}
 }
