@@ -7,6 +7,7 @@ import (
 	"rcsv/domain/po"
 	"rcsv/domain/repo"
 	"rcsv/pkg/constant"
+	"rcsv/pkg/entity"
 	"rcsv/pkg/utils"
 	"time"
 )
@@ -133,6 +134,13 @@ func (im *InscriptionMonitor) RecursiveMonitor() {
 				inscription.GenesisBlockHeight = v.GenesisBlockHeight
 				inscription.RecursiveNum = int64(len(list))
 				inscription.Owner = v.Address
+
+				w := entity.NewMysqlWhere()
+				w.SetFilter("inscription_id=?", v.Id)
+				res, _ := repoNew.List(w)
+				if len(res) != 0 {
+					continue
+				}
 
 				err = repoNew.Insert(&inscription)
 				if err != nil {
